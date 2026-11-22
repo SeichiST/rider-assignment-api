@@ -79,6 +79,26 @@ class RiderAssignmentControllerTest {
         verify(service, never()).create(any());
     }
 
+
+    @Test
+    void shouldUpdateAssignment() throws Exception {
+        RiderAssignment updated = sample();
+        updated.setRiderId(502L);
+        updated.setStatus(AssignmentStatus.ACCEPTED);
+
+        when(service.update(eq(1L), any(RiderAssignment.class)))
+                .thenReturn(updated);
+
+        mockMvc.perform(put("/api/assignments/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updated)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.riderId").value(502))
+                .andExpect(jsonPath("$.status").value("ACCEPTED"));
+
+        verify(service).update(eq(1L), any(RiderAssignment.class));
+    }
+
     @Test
     void shouldDeleteAssignment() throws Exception {
         doNothing().when(service).delete(1L);
