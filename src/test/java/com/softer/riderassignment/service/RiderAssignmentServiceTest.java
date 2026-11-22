@@ -49,7 +49,7 @@ class RiderAssignmentServiceTest {
         List<RiderAssignment> result = service.findAll();
 
         assertEquals(1, result.size());
-        assertEquals(1001L, result.get(0).getDeliveryId());
+        assertEquals(1001L, result.getFirst().getDeliveryId());
         verify(repository).findAll();
     }
 
