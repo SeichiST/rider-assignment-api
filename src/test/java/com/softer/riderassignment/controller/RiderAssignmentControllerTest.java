@@ -6,6 +6,7 @@ import com.softer.riderassignment.exception.ResourceNotFoundException;
 import com.softer.riderassignment.model.AssignmentStatus;
 import com.softer.riderassignment.model.RiderAssignment;
 import com.softer.riderassignment.service.RiderAssignmentService;
+import com.softer.riderassignment.exception.BusinessRuleException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -98,6 +99,23 @@ class RiderAssignmentControllerTest {
 
         verify(service).update(eq(1L), any(RiderAssignment.class));
     }
+
+
+    @Test
+    void shouldRejectDuplicateDeliveryAssignment() throws Exception {
+        when(service.create(any(RiderAssignment.class)))
+                .thenThrow(new BusinessRuleException(
+                        "El delivery 1001 ya tiene una asignación registrada"));
+
+        mockMvc.perform(post("/api/assignments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sample())))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.message").value(
+                        "El delivery 1001 ya tiene una asignación registrada"));
+    }
+
 
     @Test
     void shouldDeleteAssignment() throws Exception {
