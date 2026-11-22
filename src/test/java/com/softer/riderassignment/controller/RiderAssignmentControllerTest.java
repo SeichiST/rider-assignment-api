@@ -118,6 +118,22 @@ class RiderAssignmentControllerTest {
 
 
     @Test
+    void shouldReturnNotFoundWhenAssignmentDoesNotExist() throws Exception {
+        when(service.findById(99L))
+                .thenThrow(new ResourceNotFoundException(
+                        "No existe una asignación con identificador 99"));
+
+        mockMvc.perform(get("/api/assignments/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value(
+                        "No existe una asignación con identificador 99"));
+
+        verify(service).findById(99L);
+    }
+
+
+    @Test
     void shouldDeleteAssignment() throws Exception {
         doNothing().when(service).delete(1L);
 
